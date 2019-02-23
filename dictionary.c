@@ -32,7 +32,7 @@ node;
 node *hashtable[N];
 
 // Count of words added to the dictionary
-int dictionary_count= 0;
+int dictionary_count = 0;
 
 // Hashes word to a number between 0 and 25, inclusive, based on its first letter
 unsigned int hash(const char *word)
@@ -61,7 +61,7 @@ bool load(const char *dictionary)
     char word[LENGTH + 1];
 
     // create a "head" of the linked list, and set its next value to NULL
-    node *head = malloc(sizeof(node));
+    node *head = NULL;
 
     // Insert words into hash table
     while (fscanf(file, "%s", word) != EOF)
@@ -78,14 +78,11 @@ bool load(const char *dictionary)
         {
             strcpy(new_node->word, word);
             int table_position = hash(new_node->word);
-            head = hashtable[table_position];
-            new_node->next = head;
-            head = new_node;
+            new_node->next = hashtable[table_position];
+            hashtable[table_position] = new_node;
             dictionary_count++;
         }
     }
-
-    free(head);
 
     // Close dictionary
     fclose(file);
@@ -103,10 +100,7 @@ unsigned int size(void)
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    node *head = malloc(sizeof(node));
-    head = hashtable[hash(word)];
-
-    node *cursor = head;
+    node *cursor = hashtable[hash(word)];
 
     while (cursor != NULL)
     {
@@ -114,24 +108,17 @@ bool check(const char *word)
         {
             return true;
         }
-
         cursor = cursor->next;
     }
-
-    free(head);
-
     return false;
 }
 
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
 {
-    node *head = malloc(sizeof(node));
-
     for (int i = 0; i < N; i++)
     {
-        head = hashtable[i];
-        node *cursor = head;
+        node *cursor = hashtable[i];
 
         while (cursor != NULL)
         {
@@ -140,8 +127,5 @@ bool unload(void)
             free(temp);
         }
     }
-
-    free(head);
-
     return true;
 }
